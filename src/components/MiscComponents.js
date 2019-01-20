@@ -109,7 +109,7 @@ export const PurchaseForm = props => {
               light
               iconLeft
               block
-              style={[styles.bgOrange]}
+              style={[props.cart.length == 0 ? styles.bgDark : styles.bgOrange]}
               onPress={props.modalVisible}
             >
               <Icon style={[styles.whiteText]} name="ios-cart" />

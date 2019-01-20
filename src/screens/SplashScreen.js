@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { StackActions, NavigationActions } from "react-navigation";
 import { Text, Image } from "react-native";
 import { StyleProvider, Container, View, Button, Spinner } from "native-base";
 import getTheme from "../../native-base-theme/components";
@@ -24,14 +25,12 @@ export default class SplashScreen extends Component {
 
   setupPage() {
     const { navigate } = this.props.navigation;
+    const resetAction = StackActions.reset({
+      index: 0,
+      actions: [NavigationActions.navigate({ routeName: "Home" })]
+    });
+    this.props.navigation.dispatch(resetAction);
     navigate("Home");
-
-    // navigate.dispatch(
-    //   NavigationActions.reset({
-    //    index: 0,
-    //    actions: [NavigationActions.navigate({ routeName: "HomeScreen" })]
-    //   })
-    //  );
   }
   render() {
     return (

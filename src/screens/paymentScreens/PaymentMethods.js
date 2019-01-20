@@ -1,10 +1,10 @@
 import React, { Component } from "react";
+import { StackActions, NavigationActions } from "react-navigation";
 import { StyleProvider, Container, View } from "native-base";
 import getTheme from "../../../native-base-theme/components";
 import efuTheme from "../../../native-base-theme/variables/efuTheme";
 import { styles } from "../../../native-base-theme/variables/customStyles";
 import { GridButton } from "../../components/MiscComponents";
-// import ToastExample from "../../nativeBridge/ToastExample";
 import { NativeModules } from "react-native";
 
 const Landi = NativeModules.Landi;
@@ -32,6 +32,11 @@ export default class PaymentMethods extends Component {
 
   payWithCash() {
     const { navigate } = this.props.navigation;
+    const resetAction = StackActions.reset({
+      index: 0,
+      actions: [NavigationActions.navigate({ routeName: "paymentSuccess" })]
+    });
+    this.props.navigation.dispatch(resetAction);
     navigate("paymentSuccess", { data: null });
   }
   render() {

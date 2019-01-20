@@ -16,6 +16,15 @@ import paymentFailed from "./src/screens/paymentScreens/paymentFailed";
 
 const RootStack = createStackNavigator(
   {
+    Home: {
+      screen: HomeScreen,
+      navigationOptions: ({ navigation }) => {
+        const { navigate } = navigation;        
+        return {
+          title: "Home"
+        };
+      }
+    },
     Splash: {
       screen: SplashScreen,
       navigationOptions: () => {
@@ -42,15 +51,6 @@ const RootStack = createStackNavigator(
         const { navigate } = navigation;
         return {
           title: "Choose Pump"
-        };
-      }
-    },
-    Home: {
-      screen: HomeScreen,
-      navigationOptions: ({ navigation }) => {
-        const { navigate } = navigation;
-        return {
-          title: "Home"
         };
       }
     },
