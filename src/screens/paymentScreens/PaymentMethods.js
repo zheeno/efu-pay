@@ -7,7 +7,7 @@ import { styles } from "../../../native-base-theme/variables/customStyles";
 import { GridButton } from "../../components/MiscComponents";
 import { NativeModules } from "react-native";
 
-const Landi = NativeModules.Landi;
+const LandiPay = NativeModules.LandiPay;
 const ToastExample = NativeModules.ToastExample;
 
 export default class PaymentMethods extends Component {
@@ -22,12 +22,22 @@ export default class PaymentMethods extends Component {
       cart: []
     };
     this.payWithCash = this.payWithCash.bind(this);
+    this.payWithATM = this.payWithATM.bind(this);
     this.getNavParams = this.getNavParams.bind(this);
   }
 
   getNavParams() {
     cart = this.props.navigation.state.params.cart || null;
     this.setState({ cart: cart });
+  }
+
+  async payWithATM() {
+    try {
+      var { response } = await LandiPay.payWithATM();
+      alert(response);
+    } catch (e) {
+      alert(e);
+    }
   }
 
   payWithCash() {
@@ -39,6 +49,7 @@ export default class PaymentMethods extends Component {
     this.props.navigation.dispatch(resetAction);
     navigate("paymentSuccess", { data: null });
   }
+
   render() {
     const { navigate } = this.props.navigation;
 
@@ -68,7 +79,7 @@ export default class PaymentMethods extends Component {
               <GridButton
                 icon="ios-card"
                 text="ATM Card"
-                action={() => Landi.payWithATM()}
+                action={this.payWithATM}
               />
             </View>
           </View>

@@ -11,6 +11,7 @@ import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.efull_pay.CustomToastPackage;
 import com.efull_pay.LandiActivityPackage;
+import com.efull_pay.LandiPaymentPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +26,7 @@ public class MainApplication extends Application implements ReactApplication {
 
     @Override
     protected List<ReactPackage> getPackages() {
-      return Arrays.<ReactPackage>asList(new LandiActivityPackage(), new MainReactPackage(),
+      return Arrays.<ReactPackage>asList(new LandiPaymentPackage(), new LandiActivityPackage(), new MainReactPackage(),
           // new NfcManagerPackage(),
           new ScannerReactPackage(), new CustomToastPackage());
     }
@@ -46,4 +47,5 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
   }
+
 }

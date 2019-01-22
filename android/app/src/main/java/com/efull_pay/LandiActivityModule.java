@@ -105,6 +105,7 @@ public class LandiActivityModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void payWithATM() {
+        Activity activity = getCurrentActivity();
         Intent intent = new Intent(reactContext, com.arke.sdk.view.EPMSActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("trantype", "" + 1);
@@ -112,7 +113,8 @@ public class LandiActivityModule extends ReactContextBaseJavaModule {
         intent.putExtra("seqno", "" + 1);
         intent.putExtra("amount", "" + 10000);// always convert amount to long by multiplying by 100 before passing as a
                                               // parameter
-        // reactContext.startActivityForResult(intent, 0);
+        // reactContext.startActivity(intent);
+        activity.startActivityForResult(intent, 0, null);
     }
 
     // @Override
