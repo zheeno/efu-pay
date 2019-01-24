@@ -12,6 +12,7 @@ import com.facebook.soloader.SoLoader;
 import com.efull_pay.CustomToastPackage;
 import com.efull_pay.LandiActivityPackage;
 import com.efull_pay.LandiPaymentPackage;
+import com.efull_pay.startActivityPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(new LandiPaymentPackage(), new LandiActivityPackage(), new MainReactPackage(),
           // new NfcManagerPackage(),
+          new startActivityPackage(),
           new ScannerReactPackage(), new CustomToastPackage());
     }
 

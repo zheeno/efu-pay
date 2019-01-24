@@ -23,6 +23,8 @@ import { styles } from "../../native-base-theme/variables/customStyles";
 import { GridButton } from "../components/MiscComponents";
 
 const Landi = NativeModules.Landi;
+const activity = NativeModules.StartActivity;
+const LandiPay = NativeModules.LandiPay;
 
 export default class HomeScreen extends Component {
   componentDidMount() {}
@@ -32,7 +34,18 @@ export default class HomeScreen extends Component {
     this.state = {
       fetching: false
     };
+    this.payWithATM = this.payWithATM.bind(this);
   }
+  
+  async payWithATM() {
+    try {
+      var { _class, _package } = await LandiPay.payWithATM();
+      alert("Response: "+_package);
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
   render() {
     const { navigate } = this.props.navigation;
 
@@ -82,7 +95,7 @@ export default class HomeScreen extends Component {
               <GridButton
                 icon="ios-person"
                 text="Personnel"
-                action={() => navigate("ChoosePump")}
+                action={() => this.payWithATM()}
               />
             </View>
 

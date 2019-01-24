@@ -45,6 +45,15 @@
             </intent-filter>
         </service>
 
+        <!--<activity -->
+            <!--android:name="com.arke.sdk.view.EPMSAdminActivity"-->
+            <!--android:label="@string/app_name">  -->
+            <!--<intent-filter> -->
+            <!--<action android:name="com.arke.sdk.view.EPMSAdminActivity" />  -->
+            <!--<category android:name="android.intent.category.DEFAULT" />  -->
+            <!--</intent-filter>   -->
+        <!--</activity>-->
+
         <activity android:name="com.arke.sdk.view.EPMSActivity" />
         <activity android:name="com.arke.sdk.view.EPMSAdminActivity" />
         <activity android:name="com.arke.sdk.view.SettingsActivity" />

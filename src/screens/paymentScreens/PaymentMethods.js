@@ -34,7 +34,7 @@ export default class PaymentMethods extends Component {
   async payWithATM() {
     try {
       var { response } = await LandiPay.payWithATM();
-      alert(response);
+      alert("Response: "+response.message);
     } catch (e) {
       alert(e);
     }

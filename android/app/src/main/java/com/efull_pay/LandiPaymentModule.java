@@ -11,10 +11,10 @@ import android.app.Activity;
 import android.util.*;
 import android.widget.*;
 import android.view.View.*;
-import com.arke.sdk.util.epms.SqliteDatabase;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.net.Uri;
+import com.arke.sdk.util.epms.SqliteDatabase;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ActivityEventListener;
@@ -24,9 +24,15 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeMap;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ResourceBundle;
+
+import javax.annotation.Nullable;
 
 public class LandiPaymentModule extends ReactContextBaseJavaModule {
 
@@ -50,13 +56,16 @@ public class LandiPaymentModule extends ReactContextBaseJavaModule {
                     if (resultCode == Activity.RESULT_CANCELED) {
                         mPaymentPromise.reject(E_PAYMENT_CANCELLED, "Transaction was cancelled");
                     } else if (resultCode == Activity.RESULT_OK) {
-                        Uri uri = intent.getData();
+                        // Uri uri = intent.getData();
+                        //
+                        // if (uri == null) {
+                        // mPaymentPromise.reject(E_NO_DATA_FOUND, "No data found");
+                        // } else {
 
-                        if (uri == null) {
-                            mPaymentPromise.reject(E_NO_DATA_FOUND, "No data found");
-                        } else {
-                            mPaymentPromise.resolve(uri.toString());
-                        }
+                        WritableMap map = new WritableNativeMap();
+                        map.putString("message", "Hello world");
+                        mPaymentPromise.resolve(map);
+                        // }
                     }
 
                     mPaymentPromise = null;
@@ -103,19 +112,10 @@ public class LandiPaymentModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void payWithATM(Promise promise) {
-        Activity currentActivity = getCurrentActivity();
-
-        if (currentActivity == null) {
-            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
-            return;
-        }
-
         // Store the promise to resolve/reject when picker returns data
         mPaymentPromise = promise;
 
         try {
-            final Intent galleryIntent = new Intent(Intent.ACTION_PICK);
-
             Intent intent = new Intent(reactContext, com.arke.sdk.view.EPMSActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra("trantype", "" + 1);
@@ -124,8 +124,12 @@ public class LandiPaymentModule extends ReactContextBaseJavaModule {
             intent.putExtra("amount", "" + 10000);// always convert amount to long by
             // multiplying by 100 before passing as a
             // parameter
-            // currentActivity.startActivityForResult(intent, PAYMENT_REQUEST);
-            mPaymentPromise.resolve(E_PAYMENT_CANCELLED, "Payment works");
+            reactContext.startActivityForResult(intent, PAYMENT_REQUEST, null);
+            // return result of the transaction
+            WritableMap map = new WritableNativeMap();
+            map.putString("_class", "Hello");
+            map.putString("_package", "World");
+            mPaymentPromise.resolve(map);
         } catch (Exception e) {
             mPaymentPromise.reject(E_FAILED_TO_MAKE_PAYMENT, e);
             mPaymentPromise = null;
