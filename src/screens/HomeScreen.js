@@ -39,8 +39,8 @@ export default class HomeScreen extends Component {
   
   async payWithATM() {
     try {
-      var { _class, _package } = await LandiPay.payWithATM();
-      alert("Response: "+_package);
+      var { message } = await LandiPay.payWithATM();
+      console.warn("Response: "+message);
     } catch (e) {
       console.warn(e);
     }

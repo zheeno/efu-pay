@@ -26,6 +26,7 @@ import {
   List
 } from "native-base";
 import { styles } from "../../native-base-theme/variables/customStyles";
+import NumberFormat from "react-number-format";
 
 // Grid buttons for Home Screen options
 export const GridButton = props => {
@@ -58,30 +59,178 @@ export const GridButton = props => {
   );
 };
 
+// payment top slate
+export const PaymentSlate = props => {
+  return (
+    <React.Fragment>
+      <View
+        style={[
+          styles.bgOrange,
+          {
+            flex: 2,
+            alignItems: "center",
+            justifyContent: "flex-end",
+            zIndex: 5
+          }
+        ]}
+      >
+        <View
+          style={{
+            paddingHorizontal: 5,
+            paddingVertical: 10,
+            flex: 1,
+            flexDirection: "row"
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <Text note style={{ color: "#FFF" }}>
+              No. of Items
+            </Text>
+            <H1 style={styles.whiteText}>{props.cart.length}</H1>
+          </View>
+          {props.total > 0 ? (
+            <View style={{ flex: 1 }}>
+              <Text note style={{ color: "#FFF" }}>
+                Total
+              </Text>
+              <NumberFormat
+                value={props.total}
+                decimalScale={2}
+                decimalSeparator={"."}
+                fixedDecimalScale={true}
+                allowNegative={false}
+                displayType={"text"}
+                thousandSeparator={true}
+                renderText={value => (
+                  <H1 style={[styles.whiteText]}>&#8358;{value}</H1>
+                )}
+              />
+            </View>
+          ) : null}
+        </View>
+        <View style={{ flex: 1 }}>
+          <Card transparent noShadow style={{ marginBottom: -50 }}>
+            <CardItem
+              style={[
+                {
+                  borderRadius: 300,
+                  width: 100,
+                  height: 100,
+                  zIndex: 1
+                },
+                props.cardDataFetched == false
+                  ? { backgroundColor: props.defaultBg }
+                  : props.cardValid
+                  ? { backgroundColor: "#34A34F" }
+                  : { backgroundColor: "#DD5144" }
+              ]}
+            >
+              <Body
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+              >
+                {props.fetching == true ? (
+                  <Spinner color="#FFF" />
+                ) : (
+                  <Icon
+                    name={props.cardIconName}
+                    type={props.cardIconType}
+                    style={[{ color: "#FFF", fontSize: 40 }]}
+                  />
+                )}
+              </Body>
+            </CardItem>
+          </Card>
+        </View>
+      </View>
+    </React.Fragment>
+  );
+};
 // purchase form
 export const PurchaseForm = props => {
   return (
     <React.Fragment>
+      <View style={[styles.bgGrey, { padding: 10 }]}>
+        <Label style={[styles.inputLabel]}>Select Quantifier</Label>
+      </View>
+      <View style={{ flexDirection: "row" }}>
+        <View style={{ flex: 1 }}>
+          <Button
+            small
+            onPress={() => props.setVendingMode(0)}
+            block
+            style={[
+              props.vendingMode == 1 ? styles.bgGrey : styles.bgDark,
+              { borderRadius: 0 }
+            ]}
+          >
+            <Text
+              style={
+                props.vendingMode == 1 ? { color: "#333" } : styles.whiteText
+              }
+            >
+              Amount
+            </Text>
+          </Button>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button
+            small
+            onPress={() => props.setVendingMode(1)}
+            block
+            style={[
+              props.vendingMode == 0 ? styles.bgGrey : styles.bgDark,
+              { borderRadius: 0 }
+            ]}
+          >
+            <Text
+              style={
+                props.vendingMode == 0 ? { color: "#333" } : styles.whiteText
+              }
+            >
+              Litres
+            </Text>
+          </Button>
+        </View>
+      </View>
       <Form
         style={{
           flex: 1,
           alignContent: "center",
-          paddingTop: 20,
+          paddingTop: 5,
           paddingHorizontal: 20
         }}
       >
-        <Item floatingLabel>
-          <Label style={styles.inputLabel}>Litres</Label>
-          <Input
-            returnKeyType="next"
-            keyboardType="numeric"
-            defaultValue={props.litres}
-            onChangeText={newText => {
-              props.setLitres(newText);
-            }}
-            style={[styles.inputField, { fontSize: 30 }]}
-          />
-        </Item>
+        {props.vendingMode == 0 ? (
+          <Item floatingLabel>
+            <Label style={styles.inputLabel}>Amount (&#8358;)</Label>
+            <Input
+              returnKeyType="next"
+              keyboardType="numeric"
+              defaultValue={props.amount}
+              onChangeText={newText => {
+                props.setAmount(newText);
+              }}
+              style={[styles.inputField, { fontSize: 30 }]}
+            />
+          </Item>
+        ) : (
+          <Item floatingLabel>
+            <Label style={styles.inputLabel}>Litres</Label>
+            <Input
+              returnKeyType="next"
+              keyboardType="numeric"
+              defaultValue={props.litres}
+              onChangeText={newText => {
+                props.setLitres(newText);
+              }}
+              style={[styles.inputField, { fontSize: 30 }]}
+            />
+          </Item>
+        )}
+
         <View style={{ paddingVertical: 20, alignItems: "center" }}>
           <Text active style={[styles.inputLabel]}>
             Price Per Litre
@@ -92,24 +241,60 @@ export const PurchaseForm = props => {
             </H2>
           </View>
         </View>
-        <View style={{ paddingVertical: 20, alignItems: "center" }}>
-          <Text style={[styles.inputLabel]}>Total</Text>
-          <H1 style={styles.orangeText}>&#8358;{props.total.toFixed(2)}</H1>
-        </View>
-        <View style={[{ flex: 1, flexDirection: "column" }]}>
+        {props.vendingMode == 0 ? (
+          <View style={{ paddingVertical: 20, alignItems: "center" }}>
+            <Text style={[styles.inputLabel]}>Litres</Text>
+            {/* <H1 style={styles.orangeText}>{props.litres}L</H1> */}
+            <NumberFormat
+              value={props.litres}
+              decimalScale={2}
+              decimalSeparator={"."}
+              fixedDecimalScale={true}
+              allowNegative={false}
+              displayType={"text"}
+              thousandSeparator={true}
+              renderText={value => <H1 style={styles.orangeText}>{value}L</H1>}
+            />
+          </View>
+        ) : (
+          <View style={{ paddingVertical: 20, alignItems: "center" }}>
+            <Text style={[styles.inputLabel]}>Total</Text>
+            <NumberFormat
+              value={props.total}
+              decimalScale={2}
+              decimalSeparator={"."}
+              fixedDecimalScale={true}
+              allowNegative={false}
+              displayType={"text"}
+              thousandSeparator={true}
+              renderText={value => (
+                <H1 style={styles.orangeText}>&#8358;{value}</H1>
+              )}
+            />
+          </View>
+        )}
+        <View style={[{ flex: 1, flexDirection: "row" }]}>
           <View style={{ flex: 1, alignItems: "center" }}>
             <Button light iconLeft block onPress={props.addToCart}>
               <Icon name="ios-add" />
               <Text>Add to cart</Text>
             </Button>
           </View>
-          <View style={{ flex: 1, paddingTop: 20, alignItems: "center" }}>
+          <View style={{ flex: 1, alignItems: "center" }}>
             <Button
-              disabled={props.cart.length == 0 ? true : false}
+              disabled={
+                props.cart.length == 0 || props.pumpNo.length == 0
+                  ? true
+                  : false
+              }
               light
               iconLeft
               block
-              style={[props.cart.length == 0 ? styles.bgDark : styles.bgOrange]}
+              style={[
+                props.cart.length == 0 || props.pumpNo.length == 0
+                  ? styles.bgDark
+                  : styles.bgOrange
+              ]}
               onPress={props.modalVisible}
             >
               <Icon style={[styles.whiteText]} name="ios-cart" />
@@ -168,7 +353,7 @@ export const CheckoutSlip = props => {
                 dataArray={props.cart}
                 renderRow={item => (
                   <SwipeRow
-                    key={item.productId}
+                    key={item.itemId}
                     rightOpenValue={-75}
                     body={
                       <View style={{ paddingLeft: 10, flexDirection: "row" }}>
@@ -178,25 +363,39 @@ export const CheckoutSlip = props => {
                           </Text>
                           {item.litres > 0 ? (
                             <Text style={[{ fontSize: 13, color: "#666" }]}>
-                              {item.litres} Litres @ &#8358;
+                              {item.litres.toFixed(2)} Litre
+                              {item.litres > 1 ? "s" : null} @ &#8358;
                               {item.pricePerLit.toFixed(2)}/Lit
                             </Text>
                           ) : null}
+                          <Text note>Pump: {item.pumpNo}</Text>
                         </View>
                         <View
                           style={{
                             flex: 2
                           }}
                         >
-                          <Text
-                            style={{
-                              fontSize: 18,
-                              color: "#666",
-                              alignSelf: "flex-end"
-                            }}
-                          >
-                            &#8358;{item.itemPrice.toFixed(2)}
-                          </Text>
+                          <NumberFormat
+                            value={item.itemPrice}
+                            decimalScale={2}
+                            decimalSeparator={"."}
+                            fixedDecimalScale={true}
+                            allowNegative={false}
+                            displayType={"text"}
+                            thousandSeparator={true}
+                            renderText={value => (
+                              <Text
+                                style={{
+                                  fontSize: 15,
+                                  color: "#666",
+                                  alignSelf: "flex-end",
+                                  justifyContent: "center"
+                                }}
+                              >
+                                &#8358;{value}
+                              </Text>
+                            )}
+                          />
                         </View>
                       </View>
                     }
@@ -214,9 +413,18 @@ export const CheckoutSlip = props => {
         <View style={{ flex: 2, paddingHorizontal: 10, paddingVertical: 5 }}>
           <View>
             <Text style={{ color: "#666", fontSize: 18 }}>Total</Text>
-            <H1 style={{ alignSelf: "flex-end" }}>
-              &#8358;{cartSum.toFixed(2)}
-            </H1>
+            <NumberFormat
+              value={cartSum}
+              decimalScale={2}
+              decimalSeparator={"."}
+              fixedDecimalScale={true}
+              allowNegative={false}
+              displayType={"text"}
+              thousandSeparator={true}
+              renderText={value => (
+                <H1 style={{ alignSelf: "flex-end" }}>&#8358;{value}</H1>
+              )}
+            />
           </View>
           <View style={{ paddingTop: 10 }}>
             <Button block iconLeft light onPress={props.emptyCart}>

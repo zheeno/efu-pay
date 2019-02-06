@@ -14,7 +14,8 @@
     "react-native-credit-card": "^0.1.9",
     "react-native-zxing": "^1.0.11",
     "react-navigation": "^2.18.2",
-    "react-navigation-transitions": "^1.0.5"
+    "react-navigation-transitions": "^1.0.5",
+    "react-number-format": "^4.0.6"
   },
   "devDependencies": {
     "babel-jest": "23.6.0",

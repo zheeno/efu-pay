@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ScrollView, TextInput } from "react-native";
+import { ScrollView, TextInput, AsyncStorage } from "react-native";
 import {
   StyleProvider,
   Container,
@@ -53,6 +53,11 @@ var barcodeTypes = [
 ];
 export default class AssignPump extends Component {
   componentDidMount() {
+    AsyncStorage.getItem("savedPump").then((savedPump) => {
+      if(null != savedPump){
+        this.setState({pumpId: savedPump})
+      }
+    }).done();
     this.initiateQRScan();
   }
 
@@ -76,6 +81,7 @@ export default class AssignPump extends Component {
 
   onBarcodeRead = barcode => {
     //do something with barcode value
+    AsyncStorage.setItem("savedPump", barcode)
     this.setState({ pumpId: barcode });
   };
 

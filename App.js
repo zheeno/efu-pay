@@ -9,7 +9,8 @@ import HomeScreen from "./src/screens/HomeScreen";
 import NewSale from "./src/screens/NewSale";
 import PaymentMethods from "./src/screens/paymentScreens/PaymentMethods";
 import payWithFuelCard from "./src/screens/paymentScreens/payWithFuelCard";
-import payWithDebitCard from "./src/screens/paymentScreens/payWithDebitCard";
+import payWithWallet from "./src/screens/paymentScreens/payWithWallet";
+import payWithCash from "./src/screens/paymentScreens/payWithCash";
 import paymentSuccess from "./src/screens/paymentScreens/paymentSuccess";
 import paymentFailed from "./src/screens/paymentScreens/paymentFailed";
 // import AppHeader from "./src/components/AppHeader";
@@ -19,7 +20,7 @@ const RootStack = createStackNavigator(
     Home: {
       screen: HomeScreen,
       navigationOptions: ({ navigation }) => {
-        const { navigate } = navigation;        
+        const { navigate } = navigation;
         return {
           title: "Home"
         };
@@ -81,12 +82,21 @@ const RootStack = createStackNavigator(
         };
       }
     },
-    payWithDebitCard: {
-      screen: payWithDebitCard,
+    payWithWallet: {
+      screen: payWithWallet,
       navigationOptions: ({ navigation }) => {
         const { navigate } = navigation;
         return {
-          title: "Pay using Debit Card"
+          title: "Pay using E-Wallet"
+        };
+      }
+    },
+    payWithCash: {
+      screen: payWithCash,
+      navigationOptions: ({ navigation }) => {
+        const { navigate } = navigation;
+        return {
+          title: "Record Cash Payment"
         };
       }
     },

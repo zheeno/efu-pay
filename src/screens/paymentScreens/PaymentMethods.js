@@ -7,7 +7,7 @@ import { styles } from "../../../native-base-theme/variables/customStyles";
 import { GridButton } from "../../components/MiscComponents";
 import { NativeModules } from "react-native";
 
-const LandiPay = NativeModules.LandiPay;
+const Landi = NativeModules.Landi;
 const ToastExample = NativeModules.ToastExample;
 
 export default class PaymentMethods extends Component {
@@ -19,36 +19,47 @@ export default class PaymentMethods extends Component {
     super(props);
     this.state = {
       fetching: false,
+      total: 0,
       cart: []
     };
-    this.payWithCash = this.payWithCash.bind(this);
+    // this.payWithCash = this.payWithCash.bind(this);
     this.payWithATM = this.payWithATM.bind(this);
     this.getNavParams = this.getNavParams.bind(this);
   }
 
-  getNavParams() {
-    cart = this.props.navigation.state.params.cart || null;
-    this.setState({ cart: cart });
+  async getNavParams() {
+    var total = 0;
+    let cart = this.props.navigation.state.params.cart || null;
+    await this.setState({ cart: cart });
+    await this.state.cart.forEach(item => {
+      total += item.itemPrice;
+    });
+    await this.setState({ total: total });
   }
 
   async payWithATM() {
-    try {
-      var { response } = await LandiPay.payWithATM();
-      alert("Response: "+response.message);
-    } catch (e) {
-      alert(e);
-    }
+    let seqno = 2;
+    let batchno = 3;
+    let trantype = 1;
+    let amount = this.state.total;
+    await Landi.payWithATM(seqno, batchno, trantype, amount);
+    // try {
+    //   var { response } = await Landi.payWithATM();
+    //   console.warn("Response: " + response.message);
+    // } catch (e) {
+    //   console.warn(e);
+    // }
   }
 
-  payWithCash() {
-    const { navigate } = this.props.navigation;
-    const resetAction = StackActions.reset({
-      index: 0,
-      actions: [NavigationActions.navigate({ routeName: "paymentSuccess" })]
-    });
-    this.props.navigation.dispatch(resetAction);
-    navigate("paymentSuccess", { data: null });
-  }
+  // payWithCash() {
+  //   const { navigate } = this.props.navigation;
+  //   const resetAction = StackActions.reset({
+  //     index: 0,
+  //     actions: [NavigationActions.navigate({ routeName: "paymentSuccess" })]
+  //   });
+  //   this.props.navigation.dispatch(resetAction);
+  //   navigate("paymentSuccess", { data: null });
+  // }
 
   render() {
     const { navigate } = this.props.navigation;
@@ -71,7 +82,11 @@ export default class PaymentMethods extends Component {
               <GridButton
                 icon="ios-cash"
                 text={"Cash"}
-                action={() => this.payWithCash()}
+                action={() =>
+                  navigate("payWithCash", {
+                    cart: this.state.cart
+                  })
+                }
               />
             </View>
 
@@ -93,6 +108,18 @@ export default class PaymentMethods extends Component {
                 text="Fuel Card"
                 action={() =>
                   navigate("payWithFuelCard", {
+                    cart: this.state.cart
+                  })
+                }
+              />
+            </View>
+            <View style={[styles.bgGrey, { flex: 1 }]}>
+              <GridButton
+                icon="wallet"
+                iconType="Entypo"
+                text="Efull Wallet"
+                action={() =>
+                  navigate("payWithWallet", {
                     cart: this.state.cart
                   })
                 }

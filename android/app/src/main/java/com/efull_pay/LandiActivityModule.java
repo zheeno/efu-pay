@@ -22,20 +22,27 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.BaseActivityEventListener;
+import com.facebook.react.bridge.ActivityEventListener;
 
 import java.util.Map;
 import java.util.HashMap;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class LandiActivityModule extends ReactContextBaseJavaModule {
 
     private SharedPreferences settings = null;
     private SqliteDatabase mDatabase;
-
+    private Bundle mBundle;
+    private ActivityEventListener mActivityResultListener;
     private ReactApplicationContext reactContext;
 
     public LandiActivityModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
+        reactContext.addActivityEventListener(mActivityEventListener);
     }
 
     @Override
@@ -104,17 +111,17 @@ public class LandiActivityModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void payWithATM() {
-        Activity activity = getCurrentActivity();
-        Intent intent = new Intent(reactContext, com.arke.sdk.view.EPMSActivity.class);
+    public void payWithATM(Integer seqno, Integer batchno, Integer trantype, @Nonnull Double amount) {
+        amount = amount * 100;
+        Intent intent = new Intent(reactContext, paymentActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("trantype", "" + 1);
-        intent.putExtra("batchno", "" + 1);
-        intent.putExtra("seqno", "" + 1);
-        intent.putExtra("amount", "" + 10000);// always convert amount to long by multiplying by 100 before passing as a
-                                              // parameter
-        // reactContext.startActivity(intent);
-        activity.startActivityForResult(intent, 0, null);
+        intent.putExtra("origin", "com.efull_pay");
+        intent.putExtra("action", "makePayment");
+        intent.putExtra("trantype", trantype);
+        intent.putExtra("batchno", batchno);
+        intent.putExtra("seqno", seqno);
+        intent.putExtra("amount", amount);
+        reactContext.startActivity(intent);
     }
 
     // @Override
@@ -138,31 +145,33 @@ public class LandiActivityModule extends ReactContextBaseJavaModule {
 
     // return super.onOptionsItemSelected(item);
     // }
+    private final ActivityEventListener mActivityEventListener = new BaseActivityEventListener() {
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            // super.onActivityResult(requestCode, resultCode, data);
+            // check that it is the EPMSActivity with an OK result
+            if (requestCode == 0) {
+                if (resultCode == Activity.RESULT_OK) {
+                    // get String data from Intent
+                    com.arke.sdk.util.epms.Transaction newTransaction = (com.arke.sdk.util.epms.Transaction) data
+                            .getSerializableExtra("response");
+                    Log.d("LandiActivityModule", "stan = " + newTransaction.getStan());
 
-    // @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // super.onActivityResult(requestCode, resultCode, data);
-        // check that it is the EPMSActivity with an OK result
-        if (requestCode == 0) {
-            if (resultCode == Activity.RESULT_OK) {
-                // get String data from Intent
-                com.arke.sdk.util.epms.Transaction newTransaction = (com.arke.sdk.util.epms.Transaction) data
-                        .getSerializableExtra("response");
-                Log.d("LandiActivityModule", "stan = " + newTransaction.getStan());
+                    // mDatabase.saveEftTransaction(newTransaction);
+                    // Activity activity = getCurrentActivity();
+                    // try {
+                    // com.arke.sdk.view.EPMSAdminActivity.printReceipt(newTransaction, activity);
+                    // } catch (Exception e) {
+                    // Log.e("LandiActivityModule", e.getLocalizedMessage());
+                    // }
 
-                mDatabase.saveEftTransaction(newTransaction);
-                Activity activity = getCurrentActivity();
-                try {
-                    com.arke.sdk.view.EPMSAdminActivity.printReceipt(newTransaction, activity);
-                } catch (Exception e) {
-                    Log.e("LandiActivityModule", e.getLocalizedMessage());
+                    // if (newTransaction.getMode() == com.arke.sdk.util.epms.Constant.CHIP) {
+                    // com.arke.sdk.view.EPMSAdminActivity.removeCard(newTransaction, activity,
+                    // activity);
+                    // }
+
                 }
-
-                if (newTransaction.getMode() == com.arke.sdk.util.epms.Constant.CHIP) {
-                    com.arke.sdk.view.EPMSAdminActivity.removeCard(newTransaction, activity, activity);
-                }
-
             }
         }
-    }
+    };
 }

@@ -38,6 +38,7 @@ public class LandiPaymentModule extends ReactContextBaseJavaModule {
 
     private SharedPreferences settings = null;
     private SqliteDatabase mDatabase;
+    private Bundle mBundle;
 
     private static final int PAYMENT_REQUEST = 467081;
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
@@ -49,53 +50,19 @@ public class LandiPaymentModule extends ReactContextBaseJavaModule {
     private ReactApplicationContext reactContext;
 
     private final ActivityEventListener mActivityEventListener = new BaseActivityEventListener() {
+
         @Override
-        public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent intent) {
-            if (requestCode == PAYMENT_REQUEST) {
-                if (mPaymentPromise != null) {
-                    if (resultCode == Activity.RESULT_CANCELED) {
-                        mPaymentPromise.reject(E_PAYMENT_CANCELLED, "Transaction was cancelled");
-                    } else if (resultCode == Activity.RESULT_OK) {
-                        // Uri uri = intent.getData();
-                        //
-                        // if (uri == null) {
-                        // mPaymentPromise.reject(E_NO_DATA_FOUND, "No data found");
-                        // } else {
-
-                        WritableMap map = new WritableNativeMap();
-                        map.putString("message", "Hello world");
-                        mPaymentPromise.resolve(map);
-                        // }
-                    }
-
-                    mPaymentPromise = null;
+        public void onActivityResult(Activity Activity, int requestCode, int resultCode, Intent intent) {
+            if (resultCode != Activity.RESULT_CANCELED && requestCode == PAYMENT_REQUEST && mPaymentPromise != null) {
+                if (resultCode == Activity.RESULT_CANCELED) {
+                    mPaymentPromise.reject(E_PAYMENT_CANCELLED, "Transaction was cancelled");
+                } else if (resultCode == Activity.RESULT_OK) {
+                    WritableMap map = new WritableNativeMap();
+                    map.putString("message", "Hello world");
+                    mPaymentPromise.resolve(map);
                 }
+                mPaymentPromise = null;
             }
-
-            // check that it is the EPMSActivity with an OK result
-            // if (requestCode == 0) {
-            // if (resultCode == Activity.RESULT_OK) {
-            // // get String data from Intent
-            // com.arke.sdk.util.epms.Transaction newTransaction =
-            // (com.arke.sdk.util.epms.Transaction) data
-            // .getSerializableExtra("response");
-            // Log.d("LandiActivityModule", "stan = " + newTransaction.getStan());
-
-            // mDatabase.saveEftTransaction(newTransaction);
-            // // Activity activity = getCurrentActivity();
-            // try {
-            // com.arke.sdk.view.EPMSAdminActivity.printReceipt(newTransaction, activity);
-            // } catch (Exception e) {
-            // Log.e("LandiActivityModule", e.getLocalizedMessage());
-            // }
-
-            // if (newTransaction.getMode() == com.arke.sdk.util.epms.Constant.CHIP) {
-            // com.arke.sdk.view.EPMSAdminActivity.removeCard(newTransaction, activity,
-            // activity);
-            // }
-
-            // }
-            // }
         }
     };
 
@@ -112,28 +79,24 @@ public class LandiPaymentModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void payWithATM(Promise promise) {
-        // Store the promise to resolve/reject when picker returns data
         mPaymentPromise = promise;
-
         try {
-            Intent intent = new Intent(reactContext, com.arke.sdk.view.EPMSActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("trantype", "" + 1);
-            intent.putExtra("batchno", "" + 1);
-            intent.putExtra("seqno", "" + 1);
-            intent.putExtra("amount", "" + 10000);// always convert amount to long by
-            // multiplying by 100 before passing as a
-            // parameter
-            reactContext.startActivityForResult(intent, PAYMENT_REQUEST, null);
+            Intent intent = new Intent(getReactApplicationContext(), com.arke.sdk.view.EPMSActivity.class);
+            mBundle = new Bundle();
+            mBundle.putString("trantype", "" + 1);
+            mBundle.putString("batchno", "" + 1);
+            mBundle.putString("seqno", "" + 1);
+            mBundle.putString("amount", "" + 150000);
+
+            intent.putExtras(mBundle);
+            reactContext.startActivityForResult(intent, PAYMENT_REQUEST, mBundle);
             // return result of the transaction
             WritableMap map = new WritableNativeMap();
-            map.putString("_class", "Hello");
-            map.putString("_package", "World");
+            map.putString("message", "PaiyWithATM Fired");
             mPaymentPromise.resolve(map);
         } catch (Exception e) {
             mPaymentPromise.reject(E_FAILED_TO_MAKE_PAYMENT, e);
             mPaymentPromise = null;
         }
-
     }
 }

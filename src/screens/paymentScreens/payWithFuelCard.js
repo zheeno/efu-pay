@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { TouchableOpacity, ScrollView, ToastAndroid } from "react-native";
+import { ScrollView, NativeModules } from "react-native";
 import {
   StyleProvider,
   Container,
@@ -14,16 +14,19 @@ import {
   Card,
   CardItem,
   Body,
-  List,
-  SwipeRow,
-  H1
+  H1,
+  Fab,
+  Toast
 } from "native-base";
 import getTheme from "../../../native-base-theme/components";
 import efuTheme from "../../../native-base-theme/variables/efuTheme";
 import { styles } from "../../../native-base-theme/variables/customStyles";
-import { NativeModules } from "react-native";
-import { LoaderOverlay, ErrorOverlay } from "../../components/MiscComponents";
+import {
+  ErrorOverlay,
+  PaymentSlate
+} from "../../components/MiscComponents";
 import { GetData } from "../../services/ApiInterface";
+import NumberFormat from "react-number-format";
 // import NfcManager, {
 //   Ndef,
 //   NfcTech,
@@ -69,13 +72,16 @@ export default class payWithFuelCard extends Component {
       cardDataFetched: false,
       cardValid: false,
       cardPin: "",
+      cardPinValid: true,
       cardHolder: "Jon Snow",
-      companyName: "The Night's Watch"
+      companyName: "The Night's Watch",
+      cardExpires: "12/25"
     };
     this.getNavParams = this.getNavParams.bind(this);
     this.togNFC = this.togNFC.bind(this);
     this.initiateQRScan = this.initiateQRScan.bind(this);
     this.pay = this.pay.bind(this);
+    this.payWithNewCard = this.payWithNewCard.bind(this);
   }
 
   initiateQRScan() {
@@ -100,344 +106,360 @@ export default class payWithFuelCard extends Component {
     }, 5000);
   };
 
-  getNavParams() {
-    cart = this.props.navigation.state.params.cart || null;
-    this.setState({ cart: cart });
+  async getNavParams() {
     var total = 0;
-    setTimeout(() => {
-      this.state.cart.forEach(item => {
-        total += item.itemPrice;
-      });
-      this.setState({ total: total });
-    }, 3000);
+    cart = this.props.navigation.state.params.cart || null;
+    await this.setState({ cart: cart });
+    await this.state.cart.forEach(item => {
+      total += item.itemPrice;
+    });
+    await this.setState({ total: total });
   }
 
-   togNFC() {
-  //   if (!this.state.nfcOn) {
-  //     //if nfc is turned off
-  //     NfcManager.isSupported(NfcTech.MifareClassic)
-  //       .then(() => {
-  //         // NFC is supported
-  //         NfcManager.isEnabled()
-  //           .then(() => {
-  //             // NFC is enabled
-  //             // start listening for NFC swipe event
-  //             this.setState({ nfcOn: true });
-  //             ToastAndroid.show(
-  //               `NFC Activated. Please place your card on the reader`,
-  //               ToastAndroid.LONG
-  //             );
-  //             NfcManager.start({
-  //               onSessionClosedIOS: () => {
-  //                 this.setState({ nfcOn: false });
-  //                 ToastAndroid.show(`IOS Session closed`, ToastAndroid.SHORT);
-  //               }
-  //             })
-  //               .then(result => {
-  //                 ToastAndroid.show(`Start Ok`, ToastAndroid.SHORT);
-  //                 NfcManager.registerTagEvent(tag => alert("TAG: " + tag));
-  //               })
-  //               .catch(error => {
-  //                 alert("device does not support nfc!" + error);
-  //                 ToastAndroid.show(
-  //                   `NFC not supported on this device ` + error,
-  //                   ToastAndroid.LONG
-  //                 );
-  //                 this.setState({ nfcOn: false });
-  //               });
-  //           })
-  //           .catch(err => {
-  //             // NFC is disabled
-  //             // alert the user then navigate to the device's NFC settings
-  //             ToastAndroid.show(err, ToastAndroid.LONG);
-  //             this.setState({ nfcOn: false });
-  //             setTimeout(() => {
-  //               NfcManager.goToNfcSetting();
-  //             }, 5000);
-  //           });
-  //       })
-  //       .catch(err => alert(err));
-  //   } else {
-  //     this.setState({ nfcOn: false });
-  //   }
-   }
+  togNFC() {
+    //   if (!this.state.nfcOn) {
+    //     //if nfc is turned off
+    //     NfcManager.isSupported(NfcTech.MifareClassic)
+    //       .then(() => {
+    //         // NFC is supported
+    //         NfcManager.isEnabled()
+    //           .then(() => {
+    //             // NFC is enabled
+    //             // start listening for NFC swipe event
+    //             this.setState({ nfcOn: true });
+    //             ToastAndroid.show(
+    //               `NFC Activated. Please place your card on the reader`,
+    //               ToastAndroid.LONG
+    //             );
+    //             NfcManager.start({
+    //               onSessionClosedIOS: () => {
+    //                 this.setState({ nfcOn: false });
+    //                 ToastAndroid.show(`IOS Session closed`, ToastAndroid.SHORT);
+    //               }
+    //             })
+    //               .then(result => {
+    //                 ToastAndroid.show(`Start Ok`, ToastAndroid.SHORT);
+    //                 NfcManager.registerTagEvent(tag => alert("TAG: " + tag));
+    //               })
+    //               .catch(error => {
+    //                 alert("device does not support nfc!" + error);
+    //                 ToastAndroid.show(
+    //                   `NFC not supported on this device ` + error,
+    //                   ToastAndroid.LONG
+    //                 );
+    //                 this.setState({ nfcOn: false });
+    //               });
+    //           })
+    //           .catch(err => {
+    //             // NFC is disabled
+    //             // alert the user then navigate to the device's NFC settings
+    //             ToastAndroid.show(err, ToastAndroid.LONG);
+    //             this.setState({ nfcOn: false });
+    //             setTimeout(() => {
+    //               NfcManager.goToNfcSetting();
+    //             }, 5000);
+    //           });
+    //       })
+    //       .catch(err => alert(err));
+    //   } else {
+    //     this.setState({ nfcOn: false });
+    //   }
+  }
 
-  pay() {
-    const { navigate } = this.props.navigation;
+  payWithNewCard() {
     this.setState({
-      fetching: true
+      cardDataFetched: false,
+      cardValid: false
+      // cardExpires: "",
+      // cardHolder: "",
+      // cardPin: "",
+      // fuelCardNo: ""
     });
-    GetData(
-      "pay?cardType=fuelCard&cardNo=" +
-        this.state.fuelCardNo +
-        "&cardPin=" +
-        this.state.cardPin
-    )
-      .then(result => {
-        let response = result;
-        this.setState({
-          fetching: false,
-          ajaxCallState: 200,
-          ajaxCallError: null
-        });
-        if (response.paymentStatus == "success") {
-          // navigate to success page with response data
-          navigate("paymentSuccess", {
-            data: response
+  }
+
+  async pay() {
+    if (this.state.cardPin.length == 0) {
+      Toast.show({
+        text: "Please input your card PIN",
+        buttonText: "Dismiss",
+        buttonTextStyle: { color: "#fff" },
+        buttonStyle: { borderWidth: 1, borderColor: "#fff" },
+        duration: 5000,
+        position: "bottom",
+        type: "danger"
+      });
+    } else {
+      const { navigate } = this.props.navigation;
+      this.setState({
+        fetching: true
+      });
+      await GetData(
+        "pay?cardType=fuelCard&cardNo=" +
+          this.state.fuelCardNo +
+          "&cardPin=" +
+          this.state.cardPin
+      )
+        .then(result => {
+          let response = result;
+          this.setState({
+            fetching: false,
+            ajaxCallState: 200,
+            ajaxCallError: null
           });
-        } else {
-          // navigate to failed page with response data
-          navigate("paymentFailed", {
+          if (response.paymentStatus == "success") {
+            // navigate to success page with response data
+            navigate("paymentSuccess", {
+              data: this.state.cart,
+              paymentMode: "Fuel Card"
+            });
+          } else {
+            // navigate to failed page with response data
+            navigate("paymentFailed", {
+              data: [{ errorMessage: "Insufficient Funds" }]
+            });
+          }
+        })
+        .catch(error => {
+          this.setState({
+            fetching: false,
+            ajaxCallState: "NET_ERR",
+            ajaxCallError: error.message
+          });
+          // for test purposes
+          navigate("paymentSuccess", {
             data: [{ errorMessage: "Insufficient Funds" }]
           });
-        }
-      })
-      .catch(error => {
-        this.setState({
-          fetching: false,
-          ajaxCallState: "NET_ERR",
-          ajaxCallError: error.message
         });
-        // for test purposes
-        navigate("paymentSuccess", {
-          data: [{ errorMessage: "Insufficient Funds" }]
-        });
-      });
+    }
   }
   render() {
     const { navigate } = this.props.navigation;
 
     return (
       <StyleProvider style={getTheme(efuTheme)}>
-        <Container style={[styles.flexColumn]}>
-          {/* row 1 */}
-          <View
-            style={[
-              styles.flexColumn,
-              {
-                alignContent: "center",
-                justifyContent: "center"
-              }
-            ]}
-          >
-            {!this.state.cardDataFetched ? (
-              <View
-                style={{
-                  flex: 2,
-                  flexDirection: "row",
-                  alignContent: "center"
-                }}
-              >
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
-                    alignItems: "center",
-                    justifyContent: "center"
-                  }}
-                  onPress={this.togNFC}
-                >
-                  <Icon
-                    style={
-                      this.state.nfcOn
-                        ? { color: "#ef6c00", fontSize: 80 }
-                        : { color: "#777", fontSize: 80 }
-                    }
-                    name={this.state.nfcOn ? "ios-wifi" : "ios-wifi-outline"}
-                  />
-                  {this.state.nfcOn ? (
-                    <Text>Deactivate NFC</Text>
-                  ) : (
-                    <Text>Activate NFC</Text>
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
-                    alignItems: "center",
-                    justifyContent: "center"
-                  }}
-                  onPress={this.initiateQRScan}
-                >
-                  <Icon
-                    style={{ color: "#ef6c00", fontSize: 80 }}
-                    name="ios-qr-scanner"
-                  />
-                  <Text>Scan QR Code</Text>
-                </TouchableOpacity>
-              </View>
-            ) : null}
-
-            <View
-              style={{
-                flex: 3
-              }}
-            >
-              {// check if there's a network request in progress
-              this.state.fetching ? (
-                <LoaderOverlay text={"Fetching... Please wait"} />
-              ) : this.state.ajaxCallState == "NET_ERR" ? (
-                <ErrorOverlay
-                  text={this.state.ajaxCallError}
-                  tryAgain={this.pay}
+        {this.state.ajaxCallState == "NET_ERR" ? (
+          <ErrorOverlay text={this.state.ajaxCallError} />
+        ) : (
+          <Container style={[styles.flexColumn]}>
+            <ScrollView style={[{ flex: 1 }]}>
+              <View style={styles.flexColumn}>
+                <PaymentSlate
+                  cart={this.state.cart}
+                  defaultBg={"#3B5998"}
+                  total={this.state.total}
+                  card={this.state.card}
+                  cardIconName={"v-card"}
+                  cardIconType={"Entypo"}
+                  cardDataFetched={this.state.cardDataFetched}
+                  cardValid={this.state.cardValid}
+                  fetching={this.state.fetching}
                 />
-              ) : this.state.cardDataFetched ? (
-                this.state.cardValid ? (
-                  <ScrollView>
-                    <View style={{ paddingHorizontal: 10, flex: 1 }}>
-                      <Card style={[styles.bgOrange, { flex: 2 }]}>
-                        <CardItem style={styles.bgOrange}>
-                          <Body style={{ paddingVertical: 30 }}>
-                            {/* card number */}
-                            {this.state.fuelCardNo.length > 0 ? (
-                              <View>
-                                <Text style={{ color: "#FFF", fontSize: 25 }}>
-                                  {this.state.fuelCardNo}
-                                </Text>
-                              </View>
-                            ) : null}
-                            {/* card holder */}
-                            {this.state.cardHolder.length > 0 ? (
-                              <View>
-                                <Text style={{ fontSize: 18 }}>
-                                  {this.state.cardHolder}
-                                </Text>
-                              </View>
-                            ) : null}
-                            {/* company name */}
-                            {this.state.companyName.length > 0 ? (
-                              <View>
-                                <Text note style={styles.whiteText}>
-                                  {this.state.companyName}
-                                </Text>
-                              </View>
-                            ) : null}
-                          </Body>
-                        </CardItem>
-                      </Card>
-
-                      {/* input PIN */}
-                      <Form
-                        style={{
-                          flex: 2,
-                          paddingHorizontal: 20
-                        }}
-                      >
-                        <Item floatingLabel>
-                          <Label style={styles.inputLabel}>Fuel Card PIN</Label>
-                          <Input
-                            ref={component => (inputPassword = component)}
-                            autoFocus
-                            returnKeyType="done"
-                            keyboardType="numeric"
-                            defaultValue={this.state.cardPin}
-                            secureTextEntry
-                            maxLength={4}
-                            onChangeText={PIN => {
-                              this.setState({
-                                cardPin: PIN
-                              });
-                            }}
-                            style={[styles.inputField, { width: 50 }]}
-                          />
-                        </Item>
-                      </Form>
-                      <View
-                        style={{
-                          marginTop: 10,
-                          flex: 4,
-                          justifyContent: "flex-end"
-                        }}
-                      >
-                        <View
-                          style={{
-                            paddingHorizontal: 10,
-                            paddingVertical: 5
-                          }}
-                        >
-                          <View>
-                            <Text style={{ color: "#666", fontSize: 18 }}>
-                              Total
-                            </Text>
-                            <H1 style={{ alignSelf: "flex-end" }}>
-                              &#8358;{this.state.total.toFixed(2)}
-                            </H1>
-                          </View>
-                          <View style={{ paddingTop: 10 }}>
-                            <Button block iconLeft light>
-                              <Icon name="ios-close" />
-                              <Text>Cancel Transaction</Text>
-                            </Button>
-                          </View>
-                          <View style={{ paddingTop: 10 }}>
-                            <Button
-                              block
-                              iconLeft
-                              disabled={
-                                this.state.cardPin.length >= 4 ? false : true
-                              }
-                              style={
-                                this.state.cardPin.length >= 4
-                                  ? styles.bgOrange
-                                  : styles.bgDark
-                              }
-                              onPress={this.pay}
-                            >
-                              <Icon name="v-card" type="Entypo" />
-                              <Text>Pay</Text>
-                            </Button>
-                          </View>
-                        </View>
-                      </View>
-                    </View>
-                  </ScrollView>
-                ) : (
-                  <View style={{ paddingHorizontal: 10 }}>
+                {this.state.cardDataFetched == false ? (
+                  /* initial screen state before card details have been read */
+                  <View
+                    style={{ flex: 4, paddingTop: 70, paddingHorizontal: 10 }}
+                  >
+                    <H1 style={{ color: "#333", alignSelf: "center" }}>
+                      How to use this mode
+                    </H1>
+                    <Text style={{ marginVertical: 10 }}>
+                      Kindly swipe the Efull Fuel Card across the NFC reader
+                      (find the{" "}
+                      <Icon name="ios-wifi" style={{ fontSize: 20 }} /> logo on
+                      the MPOS device).
+                    </Text>
                     <Text>
-                      Dear Customer, the fuel card is invalid, please try a
-                      valid card. Thank You
+                      Alternatively, you could also scan the QR code on the Fuel
+                      Card by pressing the button with the{" "}
+                      <Icon name="ios-qr-scanner" style={{ fontSize: 20 }} />{" "}
+                      icon at the bottom right corner of the screen.
                     </Text>
                   </View>
-                )
-              ) : (
-                <Form
-                  style={{
-                    paddingHorizontal: 20
-                  }}
-                >
-                  <Item floatingLabel>
-                    <Label style={styles.inputLabel}>Fuel Card No.</Label>
-                    <Input
-                      returnKeyType="done"
-                      defaultValue={this.state.fuelCardNo}
-                      onChangeText={newText => {
-                        this.setState({
-                          fuelCardNo: newText
-                        });
+                ) : // check if card detailes are valid
+                this.state.cardValid ? (
+                  // valid card. show card details and request for PIN
+                  <View
+                    style={{
+                      zIndex: -1,
+                      flex: 4,
+                      paddingTop: 10,
+                      paddingHorizontal: 10
+                    }}
+                  >
+                    <Card style={[styles.bgGrey, { flex: 2 }]}>
+                      <CardItem>
+                        <Body style={{ paddingTop: 30 }}>
+                          {/* card number */}
+                          {this.state.fuelCardNo.length > 0 ? (
+                            <NumberFormat
+                              value={this.state.fuelCardNo}
+                              format="#### #### #### ####"
+                              displayType={"text"}
+                              renderText={value => (
+                                <H1
+                                  style={{ color: "#666", alignSelf: "center" }}
+                                >
+                                  {value}
+                                </H1>
+                              )}
+                            />
+                          ) : null}
+                          {/* card holder */}
+                          {this.state.cardHolder.length > 0 ? (
+                            <View>
+                              <Text
+                                style={{
+                                  fontSize: 18,
+                                  color: "#666",
+                                  fontWeight: "200"
+                                }}
+                              >
+                                {this.state.cardHolder.toUpperCase()}
+                              </Text>
+                            </View>
+                          ) : null}
+                          <View style={{ alignSelf: "flex-end" }}>
+                            <Text note>Expires</Text>
+                            <Text note>{this.state.cardExpires}</Text>
+                          </View>
+                          {/* company name */}
+                          {this.state.companyName.length > 0 ? (
+                            <View>
+                              <Text note>{this.state.companyName}</Text>
+                            </View>
+                          ) : null}
+                        </Body>
+                      </CardItem>
+                    </Card>
+
+                    {/* input PIN */}
+                    <Form
+                      style={{
+                        flex: 2,
+                        paddingHorizontal: 20
                       }}
-                      style={styles.inputField}
-                    />
-                  </Item>
-                  <View style={{ flex: 1, paddingTop: 20 }}>
-                    <Button
-                      disabled={this.state.cart.length == 0 ? true : false}
-                      light
-                      iconLeft
-                      block
-                      style={[styles.bgOrange]}
                     >
-                      <Icon
-                        style={[styles.whiteText]}
-                        name="v-card"
-                        type="Entypo"
-                      />
-                      <Text style={[styles.whiteText]}>Pay</Text>
+                      <Item floatingLabel>
+                        <Label style={styles.inputLabel}>Fuel Card PIN</Label>
+                        <Input
+                          ref={component => (inputPassword = component)}
+                          autoFocus
+                          returnKeyType="done"
+                          keyboardType="numeric"
+                          defaultValue={this.state.cardPin}
+                          secureTextEntry
+                          maxLength={4}
+                          onChangeText={PIN => {
+                            this.setState({
+                              cardPin: PIN
+                            });
+                          }}
+                          style={[styles.inputField, { width: 50 }]}
+                        />
+                      </Item>
+                      {!this.state.cardPinValid ? (
+                        <Item>
+                          <Text style={{ fontSize: 10, color: "red" }}>
+                            You have entered an incorrect Card PIN. Please try
+                            again.
+                          </Text>
+                        </Item>
+                      ) : null}
+                    </Form>
+                    <View style={{ flexDirection: "row", paddingVertical: 10 }}>
+                      <View style={{ flex: 1 }}>
+                        <Button
+                          disabled={this.state.fetching}
+                          light
+                          block
+                          iconRight
+                        >
+                          <Text>Cancel</Text>
+                          <Icon name="ios-close" />
+                        </Button>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Button
+                          disabled={this.state.fetching}
+                          onPress={this.pay}
+                          style={styles.bgOrange}
+                          block
+                          iconRight
+                        >
+                          <Text>Pay</Text>
+                          <Icon name="v-card" type="Entypo" />
+                        </Button>
+                      </View>
+                    </View>
+                    <View>
+                      <View style={{ flex: 1 }}>
+                        <Button
+                          disabled={this.state.fetching}
+                          dark
+                          block
+                          iconRight
+                          onPress={this.payWithNewCard}
+                        >
+                          <Text>Use a different card</Text>
+                          <Icon name="redo" type="EvilIcons" />
+                        </Button>
+                      </View>
+                    </View>
+                  </View>
+                ) : (
+                  // invalid card. Notify user
+                  <View
+                    style={{
+                      flex: 4,
+                      alignItems: "center",
+                      paddingTop: 70,
+                      paddingHorizontal: 10,
+                      justifyContent: "center"
+                    }}
+                  >
+                    <Icon
+                      name="warning"
+                      style={{ fontSize: 60, color: "red", marginBottom: 30 }}
+                    />
+                    <Text style={{ fontSize: 20, textAlign: "center" }}>
+                      Dear customer,{" "}
+                    </Text>
+                    <Text style={{ fontSize: 20, textAlign: "center" }}>
+                      Your Fuel Card has been declined.
+                    </Text>
+                    <Text style={{ fontSize: 20, textAlign: "center" }}>
+                      Please use a valid Efull Fuel Card as payment or pay with
+                      a different means.
+                    </Text>
+                    <Button
+                      disabled={this.state.fetching}
+                      dark
+                      block
+                      iconRight
+                      onPress={this.payWithNewCard}
+                      style={{ marginTop: 20 }}
+                    >
+                      <Text>Use a different card</Text>
+                      <Icon name="redo" type="EvilIcons" />
                     </Button>
                   </View>
-                </Form>
-              )}
-            </View>
-          </View>
-        </Container>
+                )}
+              </View>
+            </ScrollView>
+            {/* fab */}
+            <Fab
+              disabled={this.state.fetching}
+              active={false}
+              direction="up"
+              containerStyle={{}}
+              style={styles.bgOrange}
+              position="bottomRight"
+              onPress={this.initiateQRScan}
+            >
+              <Icon name="ios-qr-scanner" />
+            </Fab>
+          </Container>
+        )}
       </StyleProvider>
     );
   }

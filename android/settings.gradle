@@ -1,4 +1,6 @@
 rootProject.name = 'efull_pay'
+include ':react-native-zxing'
+project(':react-native-zxing').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-zxing/android/app')
 // include ':react-native-nfc-manager'
 // project(':react-native-nfc-manager').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-nfc-manager/android')
 include ':react-native-zxing', ':efull-library-module'

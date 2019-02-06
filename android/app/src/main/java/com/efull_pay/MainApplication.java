@@ -3,6 +3,7 @@ package com.efull_pay;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.react_native_zxing.ScannerReactPackage;
 // import community.revteltech.nfc.NfcManagerPackage;
 import com.react_native_zxing.ScannerReactPackage;
 import com.facebook.react.ReactNativeHost;
@@ -13,6 +14,7 @@ import com.efull_pay.CustomToastPackage;
 import com.efull_pay.LandiActivityPackage;
 import com.efull_pay.LandiPaymentPackage;
 import com.efull_pay.startActivityPackage;
+import com.efull_pay.ThermalPrinterPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,10 +29,10 @@ public class MainApplication extends Application implements ReactApplication {
 
     @Override
     protected List<ReactPackage> getPackages() {
-      return Arrays.<ReactPackage>asList(new LandiPaymentPackage(), new LandiActivityPackage(), new MainReactPackage(),
+      return Arrays.<ReactPackage>asList(new MainReactPackage(), new ScannerReactPackage(), new LandiPaymentPackage(),
+          new LandiActivityPackage(),
           // new NfcManagerPackage(),
-          new startActivityPackage(),
-          new ScannerReactPackage(), new CustomToastPackage());
+          new startActivityPackage(), new ThermalPrinterPackage(), new CustomToastPackage());
     }
 
     @Override

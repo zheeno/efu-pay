@@ -9,14 +9,23 @@ import {
   Button,
   Text
 } from "native-base";
+import { NativeModules } from "react-native";
+
 import getTheme from "../../../native-base-theme/components";
 import efuTheme from "../../../native-base-theme/variables/efuTheme";
 import { styles } from "../../../native-base-theme/variables/customStyles";
 import { GridButton } from "../../components/MiscComponents";
 
+const printer = NativeModules.printer;
+
 export default class paymentSuccess extends Component {
   componentDidMount() {
     this.getNavParams();
+    const resetAction = StackActions.reset({
+      index: 0,
+      actions: [NavigationActions.navigate({ routeName: "paymentSuccess" })]
+    });
+    this.props.navigation.dispatch(resetAction);
   }
 
   constructor(props) {
@@ -24,6 +33,7 @@ export default class paymentSuccess extends Component {
     this.state = {
       paymentData: null
     };
+    this.print = this.print.bind(this);
     this.getNavParams = this.getNavParams.bind(this);
   }
 
@@ -31,6 +41,24 @@ export default class paymentSuccess extends Component {
     data = this.props.navigation.state.params.data || null;
     this.setState({ paymentData: data });
   }
+
+  async print() {
+    // try {
+    //   var { response } = await printer.printText();
+    //   alert("Response: "+response.text);
+    // } catch (e) {
+    //   alert(e);
+    // }
+    const { navigate } = this.props.navigation;
+    this.getNavParams();
+    const resetAction = StackActions.reset({
+      index: 0,
+      actions: [NavigationActions.navigate({ routeName: "Home" })]
+    });
+    this.props.navigation.dispatch(resetAction);
+    navigate("Home");
+  }
+
   render() {
     const { navigate } = this.props.navigation;
 
@@ -66,14 +94,15 @@ export default class paymentSuccess extends Component {
                 block
                 rounded
                 style={[styles.bgOrange]}
-                onPress={() => {
-                  const resetAction = StackActions.reset({
-                    index: 0,
-                    actions: [NavigationActions.navigate({ routeName: "Home" })]
-                  });
-                  this.props.navigation.dispatch(resetAction);
-                  navigate("Home");
-                }}
+                // onPress={() => {
+                //   const resetAction = StackActions.reset({
+                //     index: 0,
+                //     actions: [NavigationActions.navigate({ routeName: "Home" })]
+                //   });
+                //   this.props.navigation.dispatch(resetAction);
+                //   this.print;
+                // }}
+                onPress={this.print}
               >
                 <Icon name="ios-checkmark-circle-outline" />
                 <Text style={styles.whiteText}>Complete</Text>
