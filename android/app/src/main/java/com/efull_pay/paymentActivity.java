@@ -27,7 +27,7 @@ public class paymentActivity extends AppCompatActivity {
     private Integer batchNo;
     private Integer seqNo;
     private Double amount;
-
+    private Long total;
     public final static String EXTRA_PURCHASE_ACTION = "makePayment";
 
     @Override
@@ -45,8 +45,9 @@ public class paymentActivity extends AppCompatActivity {
                 this.batchNo = intent.getIntExtra("batchNo", 1);
                 this.seqNo = intent.getIntExtra("seqNo", 1);
                 this.amount = intent.getDoubleExtra("amount", 10000);
+                this.total = this.amount * 100;
                 final TextView amountText = (TextView) findViewById(R.id.amountView);
-                amountText.setText(this.amount.toString());
+                amountText.setText(this.total.toString());
                 break;
 
             default:
@@ -67,7 +68,7 @@ public class paymentActivity extends AppCompatActivity {
         intent.putExtra("trantype", "" + this.transType);
         intent.putExtra("batchno", "" + this.batchNo);
         intent.putExtra("seqno", "" + this.seqNo);
-        intent.putExtra("amount", this.amount.toString());
+        intent.putExtra("amount", "" + this.amount);
         startActivityForResult(intent, 0);
     }
 

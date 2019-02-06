@@ -112,7 +112,6 @@ public class LandiActivityModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void payWithATM(Integer seqno, Integer batchno, Integer trantype, @Nonnull Double amount) {
-        amount = amount * 100;
         Intent intent = new Intent(reactContext, paymentActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("origin", "com.efull_pay");
