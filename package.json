@@ -11,6 +11,7 @@
     "native-base": "^2.8.1",
     "react": "16.6.1",
     "react-native": "0.57.7",
+    "react-native-activity-result": "0.1.0-rc.1",
     "react-native-credit-card": "^0.1.9",
     "react-native-zxing": "^1.0.11",
     "react-navigation": "^2.18.2",

@@ -1,33 +1,23 @@
 import React, { Component } from "react";
 import { ScrollView, TextInput, NativeModules } from "react-native";
-import {
-  StyleProvider,
-  Container,
-  Button,
-  Form,
-  Item,
-  Icon,
-  Right,
-  Label,
-  View,
-  Text,
-  Input,
-  H1,
-  Card,
-  CardItem,
-  Body
-} from "native-base";
+import { StyleProvider, Container, View } from "native-base";
 import getTheme from "../../native-base-theme/components";
 import efuTheme from "../../native-base-theme/variables/efuTheme";
 import { styles } from "../../native-base-theme/variables/customStyles";
 import { GridButton } from "../components/MiscComponents";
+import { StackActions, NavigationActions } from "react-navigation";
 
 const Landi = NativeModules.Landi;
-const activity = NativeModules.StartActivity;
 const LandiPay = NativeModules.LandiPay;
 
 export default class HomeScreen extends Component {
-  componentDidMount() {}
+  componentDidMount() {
+    // const resetAction = StackActions.reset({
+    //   index: 0,
+    //   actions: [NavigationActions.navigate({ routeName: "Home" })]
+    // });
+    // this.props.navigation.dispatch(resetAction);
+  }
 
   constructor(props) {
     super(props);
@@ -36,11 +26,11 @@ export default class HomeScreen extends Component {
     };
     this.payWithATM = this.payWithATM.bind(this);
   }
-  
+
   async payWithATM() {
     try {
       var { message } = await LandiPay.payWithATM();
-      console.warn("Response: "+message);
+      console.warn("Response: " + message);
     } catch (e) {
       console.warn(e);
     }
@@ -92,11 +82,7 @@ export default class HomeScreen extends Component {
                 }
               ]}
             >
-              <GridButton
-                icon="ios-person"
-                text="Personnel"
-                action={() => this.payWithATM()}
-              />
+              <GridButton icon="ios-person" text="Personnel" />
             </View>
 
             <View style={[styles.bgGrey, { flex: 1 }]}>

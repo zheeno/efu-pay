@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">efull_pay</string>
+    <string name="app_name">Efull Pay</string>
     <string name="title_activity_payment">paymentActivity</string>
 </resources>

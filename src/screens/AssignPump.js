@@ -140,6 +140,7 @@ export default class AssignPump extends Component {
                       pumpId: newText,
                       source: "Input Field"
                     });
+                    AsyncStorage.setItem("savedPump", newText)
                   }}
                   style={styles.inputField}
                 />

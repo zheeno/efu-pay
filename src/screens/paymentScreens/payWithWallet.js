@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { StackActions, NavigationActions } from "react-navigation";
 import { NativeModules, ScrollView, Modal } from "react-native";
 import {
   StyleProvider,
@@ -139,6 +140,12 @@ export default class payWithWallet extends Component {
   checkWalletValidity() {
     const { navigate } = this.props.navigation;
     if (this.state.walletValid) {
+      const resetAction = StackActions.reset({
+        index: 0,
+        actions: [
+          NavigationActions.navigate({ routeName: "paymentSuccess" })
+        ]
+      });
       navigate("paymentSuccess", {
         data: this.state.cart,
         paymentMode: "Efull e-Wallet"

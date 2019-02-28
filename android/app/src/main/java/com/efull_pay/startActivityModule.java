@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.efull_pay;
 
 import android.app.Activity;
@@ -14,7 +17,6 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
-import com.facebook.react.bridge.ReactContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,17 +27,15 @@ import javax.annotation.Nullable;
 public class startActivityModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
     final SparseArray<Promise> mPromises;
-    private ReactApplicationContext reactContext;
 
     public startActivityModule(ReactApplicationContext reactContext) {
         super(reactContext);
         mPromises = new SparseArray<>();
-        this.reactContext = reactContext;
     }
 
     @Override
     public String getName() {
-        return "StartActivity";
+        return "startActivity";
     }
 
     @Nullable
@@ -62,17 +62,9 @@ public class startActivityModule extends ReactContextBaseJavaModule implements A
     @ReactMethod
     public void startActivity(String action, ReadableMap data) {
         Activity activity = getReactApplicationContext().getCurrentActivity();
-        if (action == "EPMSActivity") {
-            Intent intent = new Intent(reactContext, com.arke.sdk.view.EPMSActivity.class);
-            intent.putExtras(Arguments.toBundle(data));
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            reactContext.startActivity(intent);
-        } else {
-            Intent intent = new Intent(reactContext, com.arke.sdk.view.EPMSAdminActivity.class);
-            // intent.putExtras(Arguments.toBundle(data));
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            reactContext.startActivity(intent);
-        }
+        Intent intent = new Intent(action);
+        intent.putExtras(Arguments.toBundle(data));
+        activity.startActivity(intent);
     }
 
     @ReactMethod
@@ -98,6 +90,15 @@ public class startActivityModule extends ReactContextBaseJavaModule implements A
         map.putString("class", componentName.getClassName());
         map.putString("package", componentName.getPackageName());
         promise.resolve(map);
+    }
+
+    @ReactMethod
+    public void finish(int result, String action, ReadableMap map) {
+        Activity activity = getReactApplicationContext().getCurrentActivity();
+        Intent intent = new Intent(action);
+        intent.putExtras(Arguments.toBundle(map));
+        activity.setResult(result, intent);
+        activity.finish();
     }
 
     @Override

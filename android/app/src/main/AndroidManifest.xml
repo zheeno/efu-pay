@@ -24,7 +24,7 @@
             android:name="android.epay.dataacq"
             android:required="false" />
 
-        <activity
+        <!-- <activity
             android:name=".MainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
             android:exported="true"
@@ -33,11 +33,23 @@
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity> -->
 
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        
         <service
             android:name="com.arke.sdk.vas.VASService"
             android:exported="true">
@@ -55,7 +67,6 @@
         <!-- </intent-filter> -->
         <!-- </activity> -->
 
-        <activity android:name="com.arke.sdk.view.EPMSActivity" />
         <activity android:name="com.arke.sdk.view.EPMSAdminActivity" />
         <activity android:name="com.arke.sdk.view.SettingsActivity" />
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />

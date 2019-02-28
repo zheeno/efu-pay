@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { StackActions, NavigationActions } from "react-navigation";
 import { ScrollView, NativeModules } from "react-native";
 import {
   StyleProvider,
@@ -21,10 +22,7 @@ import {
 import getTheme from "../../../native-base-theme/components";
 import efuTheme from "../../../native-base-theme/variables/efuTheme";
 import { styles } from "../../../native-base-theme/variables/customStyles";
-import {
-  ErrorOverlay,
-  PaymentSlate
-} from "../../components/MiscComponents";
+import { ErrorOverlay, PaymentSlate } from "../../components/MiscComponents";
 import { GetData } from "../../services/ApiInterface";
 import NumberFormat from "react-number-format";
 // import NfcManager, {
@@ -208,6 +206,14 @@ export default class payWithFuelCard extends Component {
           });
           if (response.paymentStatus == "success") {
             // navigate to success page with response data
+
+            const resetAction = StackActions.reset({
+              index: 0,
+              actions: [
+                NavigationActions.navigate({ routeName: "paymentSuccess" })
+              ]
+            });
+            this.props.navigation.dispatch(resetAction);
             navigate("paymentSuccess", {
               data: this.state.cart,
               paymentMode: "Fuel Card"

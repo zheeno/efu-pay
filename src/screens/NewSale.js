@@ -40,7 +40,7 @@ export default class NewSale extends Component {
     super(props);
     this.state = {
       reference: "",
-      active: true,
+      active: false,
       fetching: false,
       actionSheetVisible: false,
       modalVisible: false,
@@ -109,12 +109,14 @@ export default class NewSale extends Component {
       },
       buttonIndex => {
         this.setactionSheetVisible(false);
-        this.setState({
-          selectedProduct: buttonIndex,
-          litres: 0,
-          pricePerLit: this.state.products[buttonIndex].pricePerLit,
-          total: 0
-        });
+        if (undefined != this.state.products[buttonIndex]) {
+          this.setState({
+            selectedProduct: buttonIndex,
+            litres: 0,
+            pricePerLit: this.state.products[buttonIndex].pricePerLit,
+            total: 0
+          });
+        }
       }
     );
 
@@ -187,7 +189,7 @@ export default class NewSale extends Component {
     }
   }
 
-  saveSlip(){
+  saveSlip() {
     if (this.state.cart.length > 0) {
       const slip = {
         storageType: "slip",
@@ -195,8 +197,8 @@ export default class NewSale extends Component {
         dateTime: "2/4/2019 - 9:44pm",
         items: this.state.cart,
         csa: "Bankole Wasiu"
-      }
-      if(AsyncStorage.setItem(this.state.reference, slip).done()){
+      };
+      if (AsyncStorage.setItem(this.state.reference, slip).done()) {
         // reset cart
         this.setState({
           cart: [],
@@ -205,7 +207,7 @@ export default class NewSale extends Component {
           saveSlipModalVisible: false
         });
         Toast.show({
-          text: "Sale has been saved with reference "+this.state.reference,
+          text: "Sale has been saved with reference " + this.state.reference,
           buttonText: "Okay",
           buttonTextStyle: { color: "#fff" },
           buttonStyle: { borderWidth: 1, borderColor: "#fff" },
@@ -214,7 +216,6 @@ export default class NewSale extends Component {
           type: "success"
         });
       }
-
     } else {
       Toast.show({
         text: "Cart is empty",
@@ -305,6 +306,7 @@ export default class NewSale extends Component {
             >
               {/* purchase form */}
               <PurchaseForm
+                ref={"purchase"}
                 pumpNo={this.state.pumpNo}
                 litres={this.state.litres.toFixed(2).toString()}
                 pricePerLit={this.state.pricePerLit}
@@ -378,56 +380,56 @@ export default class NewSale extends Component {
                   paddingHorizontal: 10
                 }}
               >
-                  <H3 style={{ color: "#666" }}>Save this transaction</H3>
-                  <Form style={{ paddingTop: 20 }}>
-                    <Body>
-                      <Item floatingLabel>
-                        <Label style={styles.inputLabel}>Reference</Label>
-                        <Input
+                <H3 style={{ color: "#666" }}>Save this transaction</H3>
+                <Form style={{ paddingTop: 20 }}>
+                  <Body>
+                    <Item floatingLabel>
+                      <Label style={styles.inputLabel}>Reference</Label>
+                      <Input
                         autoFocus
-                          returnKeyType="done"
-                          keyboardType="default"
-                          defaultValue={this.state.reference}
-                          onChangeText={newText => {
-                            this.setState({ reference: newText });
-                          }}
-                          style={[styles.inputField]}
-                        />
-                      </Item>
-                      <Item
-                        style={{
-                          paddingTop: 15,
-                          flexDirection: "row"
+                        returnKeyType="done"
+                        keyboardType="default"
+                        defaultValue={this.state.reference}
+                        onChangeText={newText => {
+                          this.setState({ reference: newText });
                         }}
-                      >
-                        <View style={{ flex: 1 }}>
-                          <Button
-                            disabled={this.state.fetching}
-                            block
-                            light
-                            iconLeft
-                            onPress={() =>
-                              this.setState({ saveSlipModalVisible: false })
-                            }
-                          >
-                            <Text>Cancel</Text>
-                            <Icon name="ios-close-circle-outline" />
-                          </Button>
-                        </View>
-                        <View style={{ flex: 1, paddingLeft: 5 }}>
-                          <Button
-                            disabled={this.state.fetching}
-                            block
-                            iconLeft
-                            onPress={this.saveSlip}
-                          >
-                            <Text>Save</Text>
-                            <Icon name="save" type="Entypo" />
-                          </Button>
-                        </View>
-                      </Item>
-                    </Body>
-                  </Form>
+                        style={[styles.inputField]}
+                      />
+                    </Item>
+                    <Item
+                      style={{
+                        paddingTop: 15,
+                        flexDirection: "row"
+                      }}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Button
+                          disabled={this.state.fetching}
+                          block
+                          light
+                          iconLeft
+                          onPress={() =>
+                            this.setState({ saveSlipModalVisible: false })
+                          }
+                        >
+                          <Text>Cancel</Text>
+                          <Icon name="ios-close-circle-outline" />
+                        </Button>
+                      </View>
+                      <View style={{ flex: 1, paddingLeft: 5 }}>
+                        <Button
+                          disabled={this.state.fetching}
+                          block
+                          iconLeft
+                          onPress={this.saveSlip}
+                        >
+                          <Text>Save</Text>
+                          <Icon name="save" type="Entypo" />
+                        </Button>
+                      </View>
+                    </Item>
+                  </Body>
+                </Form>
               </View>
               <View style={{ flex: 2 }} />
             </View>
@@ -446,21 +448,21 @@ export default class NewSale extends Component {
             ) : (
               <Icon name="ios-arrow-down" />
             )}
-            <Button
-              style={{ backgroundColor: "purple" }}
-            >
+            <Button style={{ backgroundColor: "purple" }}>
               <Icon name="redo" type="EvilIcons" />
             </Button>
-            {this.state.cart.length > 0 ?
-            <Button style={{ backgroundColor: "#34A34F" }}
-              onPress={() =>
-                this.setState({
-                  saveSlipModalVisible: true
-                })
-              }>
-              <Icon name="save" type="FontAwesome" />
-            </Button>
-            : null}
+            {this.state.cart.length > 0 ? (
+              <Button
+                style={{ backgroundColor: "#34A34F" }}
+                onPress={() =>
+                  this.setState({
+                    saveSlipModalVisible: true
+                  })
+                }
+              >
+                <Icon name="save" type="FontAwesome" />
+              </Button>
+            ) : null}
             <Button style={{ backgroundColor: "#3B5998" }}>
               <Icon name="user" type="FontAwesome" />
             </Button>

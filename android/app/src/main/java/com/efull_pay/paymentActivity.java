@@ -10,7 +10,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.util.*;
 
-
 import com.arke.sdk.util.epms.SqliteDatabase;
 import android.content.SharedPreferences;
 import android.widget.TextView;
@@ -26,8 +25,7 @@ public class paymentActivity extends AppCompatActivity {
     private Integer transType;
     private Integer batchNo;
     private Integer seqNo;
-    private Double amount;
-    private Long total;
+    private Integer amount;
     public final static String EXTRA_PURCHASE_ACTION = "makePayment";
 
     @Override
@@ -38,21 +36,21 @@ public class paymentActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         // get intent from explicit activity
         Intent intent = getIntent();
-            String action = intent.getStringExtra("action");
-            switch (action) {
-            case EXTRA_PURCHASE_ACTION:
-                this.transType = intent.getIntExtra("transType", 1);
-                this.batchNo = intent.getIntExtra("batchNo", 1);
-                this.seqNo = intent.getIntExtra("seqNo", 1);
-                this.amount = intent.getDoubleExtra("amount", 10000);
-                this.total = this.amount * 100;
-                final TextView amountText = (TextView) findViewById(R.id.amountView);
-                amountText.setText(this.total.toString());
-                break;
+        String action = intent.getStringExtra("action");
+        switch (action) {
+        case EXTRA_PURCHASE_ACTION:
+            this.transType = intent.getIntExtra("transType", 1);
+            this.batchNo = intent.getIntExtra("batchNo", 8);
+            this.seqNo = intent.getIntExtra("seqNo", 20);
+            this.amount = intent.getIntExtra("amount", 10000);
+            Float newAmount = Float.parseFloat(this.amount.toString())/100;
+            final TextView amountText = (TextView) findViewById(R.id.amountView);
+            amountText.setText(newAmount.toString());
+            break;
 
-            default:
-                break;
-            }
+        default:
+            break;
+        }
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,11 +62,14 @@ public class paymentActivity extends AppCompatActivity {
     }
 
     public void payWithATM(View view) {
-        Intent intent = new Intent("com.arke.sdk.POSTerminal");
-        intent.putExtra("trantype", "" + this.transType);
-        intent.putExtra("batchno", "" + this.batchNo);
-        intent.putExtra("seqno", "" + this.seqNo);
-        intent.putExtra("amount", "" + this.amount);
+        Intent intent = new Intent("com.arke.sdk.TransactParser");
+        intent.putExtra("trantype", this.transType);
+        intent.putExtra("batchno", this.batchNo);
+        intent.putExtra("seqno", this.seqNo);
+        intent.putExtra("amount", this.amount);
+        intent.putExtra("action", "makePayment");
+        intent.putExtra("appName", "Efull Fuel Pay");
+        intent.putExtra("domainName", "com.efull_pay");
         startActivityForResult(intent, 0);
     }
 
@@ -79,24 +80,13 @@ public class paymentActivity extends AppCompatActivity {
         if (requestCode == 0) {
             if (resultCode == Activity.RESULT_OK) {
                 // get String data from Intent
-                com.arke.sdk.util.epms.Transaction newTransaction = (com.arke.sdk.util.epms.Transaction) data
+                com.arke.sdk.util.epms.Transaction transactionResult = (com.arke.sdk.util.epms.Transaction) data
                         .getSerializableExtra("response");
-                // Log.d("paymentActivity", "stan = " + newTransaction.getStan());
-                // mDatabase.saveEftTransaction(newTransaction);
-
-                // try {
-                // com.arke.sdk.view.EPMSAdminActivity.printReceipt(newTransaction,
-                // paymentActivity.this);
-                // } catch (Exception e) {
-                // Log.e("paymentActivity", e.getLocalizedMessage());
-                // }
-
-                // if (newTransaction.getMode() == com.arke.sdk.util.epms.Constant.CHIP) {
-                // com.arke.sdk.view.EPMSAdminActivity.removeCard(newTransaction,
-                // paymentActivity.this,
-                // paymentActivity.this);
-                // }
-
+                // return result to the calling activity
+                Intent result = new Intent();
+                result.putExtra("transactionResult", transactionResult);
+                setResult(Activity.RESULT_OK, result);
+                // finish();
             }
         }
     }

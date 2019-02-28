@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { StackActions, NavigationActions } from "react-navigation";
 import { TouchableOpacity, ScrollView } from "react-native";
 import {
   StyleProvider,
@@ -164,6 +165,12 @@ export default class payWithCash extends Component {
   checkCardValidity() {
     const { navigate } = this.props.navigation;
     if (this.state.cardValid) {
+      const resetAction = StackActions.reset({
+        index: 0,
+        actions: [
+          NavigationActions.navigate({ routeName: "paymentSuccess" })
+        ]
+      });
       navigate("paymentSuccess", {
         data: this.state.cart,
         paymentMode: "Cash"

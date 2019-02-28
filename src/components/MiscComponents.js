@@ -150,6 +150,13 @@ export const PaymentSlate = props => {
 };
 // purchase form
 export const PurchaseForm = props => {
+  var quantifier="quantifier";
+  
+  handleRefs = () => {
+    // alert(this.refs.quantifier);
+    props.addToCart();
+  };
+
   return (
     <React.Fragment>
       <View style={[styles.bgGrey, { padding: 10 }]}>
@@ -213,6 +220,7 @@ export const PurchaseForm = props => {
               onChangeText={newText => {
                 props.setAmount(newText);
               }}
+              ref={(input) => {quantifier = input}}
               style={[styles.inputField, { fontSize: 30 }]}
             />
           </Item>
@@ -275,7 +283,7 @@ export const PurchaseForm = props => {
         )}
         <View style={[{ flex: 1, flexDirection: "row" }]}>
           <View style={{ flex: 1, alignItems: "center" }}>
-            <Button light iconLeft block onPress={props.addToCart}>
+            <Button light iconLeft block onPress={this.handleRefs}>
               <Icon name="ios-add" />
               <Text>Add to cart</Text>
             </Button>

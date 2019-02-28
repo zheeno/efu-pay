@@ -14,18 +14,12 @@ import { NativeModules } from "react-native";
 import getTheme from "../../../native-base-theme/components";
 import efuTheme from "../../../native-base-theme/variables/efuTheme";
 import { styles } from "../../../native-base-theme/variables/customStyles";
-import { GridButton } from "../../components/MiscComponents";
 
 const printer = NativeModules.printer;
 
 export default class paymentSuccess extends Component {
   componentDidMount() {
     this.getNavParams();
-    const resetAction = StackActions.reset({
-      index: 0,
-      actions: [NavigationActions.navigate({ routeName: "paymentSuccess" })]
-    });
-    this.props.navigation.dispatch(resetAction);
   }
 
   constructor(props) {
@@ -51,11 +45,6 @@ export default class paymentSuccess extends Component {
     // }
     const { navigate } = this.props.navigation;
     this.getNavParams();
-    const resetAction = StackActions.reset({
-      index: 0,
-      actions: [NavigationActions.navigate({ routeName: "Home" })]
-    });
-    this.props.navigation.dispatch(resetAction);
     navigate("Home");
   }
 

@@ -9,7 +9,7 @@ import { NativeModules } from "react-native";
 
 const Landi = NativeModules.Landi;
 const ToastExample = NativeModules.ToastExample;
-
+const ActivityResult = NativeModules.startActivity;
 export default class PaymentMethods extends Component {
   componentDidMount() {
     this.getNavParams();
@@ -22,7 +22,7 @@ export default class PaymentMethods extends Component {
       total: 0,
       cart: []
     };
-    // this.payWithCash = this.payWithCash.bind(this);
+    this.onATMDone = this.onATMDone.bind(this);
     this.payWithATM = this.payWithATM.bind(this);
     this.getNavParams = this.getNavParams.bind(this);
   }
@@ -38,28 +38,14 @@ export default class PaymentMethods extends Component {
   }
 
   async payWithATM() {
-    let seqno = 2;
-    let batchno = 3;
     let trantype = 1;
-    let amount = this.state.total;
-    await Landi.payWithATM(seqno, batchno, trantype, amount);
-    // try {
-    //   var { response } = await Landi.payWithATM();
-    //   console.warn("Response: " + response.message);
-    // } catch (e) {
-    //   console.warn(e);
-    // }
+    let amount = this.state.total * 100;
+    await Landi.payWithATM(trantype, amount, this.onATMDone);
   }
 
-  // payWithCash() {
-  //   const { navigate } = this.props.navigation;
-  //   const resetAction = StackActions.reset({
-  //     index: 0,
-  //     actions: [NavigationActions.navigate({ routeName: "paymentSuccess" })]
-  //   });
-  //   this.props.navigation.dispatch(resetAction);
-  //   navigate("paymentSuccess", { data: null });
-  // }
+  onATMDone() {
+     navigate("paymentSuccess", { data: null });
+  }
 
   render() {
     const { navigate } = this.props.navigation;
